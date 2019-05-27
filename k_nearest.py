@@ -28,23 +28,23 @@ pca = PCA(n_components = d)
 train_images_reduced = pca.fit_transform(train_images)
 test_images_reduced = pca.fit_transform(test_images)
 
-clf = KNeighborsClassifier()
+clf = KNeighborsClassifier(n_jobs=-1)
 start = time.time()
 print("\bTraining model..")
-clf.fit(train_images,train_labels)
+clf.fit(train_images_reduced,train_labels)
 duration = time.time()-start
 print("\bTrain duration: ", duration, 's')
 print("\b----------------------Results----------------------")
 print("Compute predictions")
-predicted = clf.predict(test_images)
+predicted = clf.predict(test_images_reduced)
 
 print("Accuracy: ", accuracy_score(test_labels, predicted))
 ##
 # Determine Cross Validation Score & Prediction
-crossVScore = cross_val_score(clf,train_images, train_labels, cv=3, scoring="accuracy")
+crossVScore = cross_val_score(clf,train_images_reduced, train_labels, cv=3, scoring="accuracy")
 print('\bCross Validation Score = ' + str(crossVScore))
 
-y_train_pred = cross_val_predict(clf,train_images, train_labels, cv=3)
+y_train_pred = cross_val_predict(clf,train_images_reduced, train_labels, cv=3)
 print('\bCross Validation Prediction = ' + str(y_train_pred))
 
 ##
