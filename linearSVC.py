@@ -1,5 +1,5 @@
 from mlxtend.data import loadlocal_mnist
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import LinearSVC
 from sklearn.decomposition import PCA
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import cross_val_predict
@@ -7,6 +7,7 @@ from sklearn.metrics import *
 import numpy as np
 import time
 import preproc
+import pandas as pd
 
 print("\bLoading dataset..")
 train_images, train_labels = loadlocal_mnist(
@@ -16,12 +17,14 @@ test_images, test_labels = loadlocal_mnist(
         images_path='MNIST_data/t10k-images-idx3-ubyte/t10k-images.idx3-ubyte',
         labels_path='MNIST_data/t10k-labels-idx1-ubyte/t10k-labels.idx1-ubyte')
 
+#new_df = pd.DataFrame(data=np.int_(train_images[1:,1:]))
+#train_changing_pixels_df, dropped_pixels = preproc.remove_constant_pixels(new_df)
 train = preproc.reshape_to_img(train_images)
 bounds_train = preproc.get_data_to_box(train) * 1. / 28
 ##
 # Determine right number of Dimensions d
 pca = PCA()
-pca.fit(bounds_train)
+pca.fit(train_images)
 cumsum = np.cumsum(pca.explained_variance_ratio_)
 d = np.argmax(cumsum >= 0.95)+1
 
@@ -29,10 +32,10 @@ pca = PCA(n_components = d)
 train_images_reduced = pca.fit_transform(train_images)
 test_images_reduced = pca.fit_transform(test_images)
 
-clf = KNeighborsClassifier(n_neighbors=6,n_jobs=-1)
+clf = LinearSVC(n_jobs=-1)
 start = time.time()
 print("\bTraining model..")
-clf.fit(train_images_reduced,train_labels)
+clf.fit(bounds_train,train_labels)
 duration = time.time()-start
 print("\bTrain duration: ", duration, 's')
 print("\b----------------------Results----------------------")
