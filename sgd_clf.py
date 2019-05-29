@@ -14,7 +14,8 @@ from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 simplefilter(action='ignore', category=DeprecationWarning)
 from mlxtend.data import loadlocal_mnist
-#mnist = fetch_openml('mnist_784')
+import pandas as pd
+import preproc
 
 #Import Loading Spinner Cursor
 import spinner
@@ -31,7 +32,10 @@ with spinner.Spinner():
     print("\b---------------------------------------------------")
     print('----------Stochastic Gradient Descent--------------')
     print('----------------Binary Classifier------------------')
-
+    new_df = pd.DataFrame(data=np.int_(train_images[0:,0:]))
+    #train_changing_pixels_df, dropped_pixels = preproc.remove_constant_pixels(new_df)
+    train_images_pd,dropped_pixels = preproc.remove_constant_pixels(new_df)
+    train_images = np.array(train_images_pd)
     ##
     # Determine right number of Dimensions d
     pca = PCA()
@@ -70,8 +74,8 @@ with spinner.Spinner():
 
     ##
     # Train Binary Classifier to only detect the number 5
-    y_train_5 = (y_train == 5)
-    y_test_5 = (test_labels == 5)
+    # y_train_5 = (y_train == 5)
+    # y_test_5 = (test_labels == 5)
 
     # ##
     # # Train without PCA
@@ -88,28 +92,28 @@ with spinner.Spinner():
     ##
     # Initialize SGD Binary Classifier and train it
     sgd_clf = SGDClassifier(random_state=42, max_iter=1000, tol=1e-3)
-    sgd_clf.fit(X_train_pca, y_train_5)
+    sgd_clf.fit(X_train_pca, y_train)
     duration = time.time()-start
     print("\bTrain duration with PCA: ", duration, 's')
     print("----------------------Results----------------------")
     ##
     # Determine Cross Validation Score & Prediction
-    crossVScore = cross_val_score(sgd_clf, X_train_pca, y_train_5, cv=3, scoring="accuracy")
+    crossVScore = cross_val_score(sgd_clf, X_train_pca, y_train, cv=3, scoring="accuracy")
     print('\bCross Validation Score = ' + str(crossVScore))
 
-    y_train_pred = cross_val_predict(sgd_clf, X_train_pca, y_train_5, cv=3)
+    y_train_pred = cross_val_predict(sgd_clf, X_train_pca, y_train, cv=3)
     print('\bCross Validation Prediction = ' + str(y_train_pred))
 
     ##
     # Determine Confusion Matrix
-    confusionMatrix = confusion_matrix(y_train_5,y_train_pred)
+    confusionMatrix = confusion_matrix(y_train,y_train_pred)
     print("\bConfusion Matrix = \n", confusionMatrix)
 
     ##
     # Determine Precision and Recall and F1
-    precision = precision_score(y_train_5, y_train_pred)
-    recall = recall_score(y_train_5, y_train_pred)
-    f1 = f1_score(y_train_5, y_train_pred)
+    precision = precision_score(y_train, y_train_pred,average='weighted')
+    recall = recall_score(y_train, y_train_pred,average='weighted')
+    f1 = f1_score(y_train, y_train_pred,average='weighted')
 
     print('\bPrecision: ', precision)
     print('Recall: ', recall)

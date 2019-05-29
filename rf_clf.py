@@ -1,28 +1,35 @@
 import numpy as np
 import time
-from sklearn.datasets import fetch_mldata
-from sklearn.linear_model import SGDClassifier
+import preproc
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import cross_val_predict
 from sklearn.metrics import *
-from sklearn.datasets import fetch_openml
+import pandas as pd
 import matplotlib.pyplot as plt
 # import warnings filter
 from warnings import simplefilter
 # ignore all future warnings
 simplefilter(action='ignore', category=FutureWarning)
 simplefilter(action='ignore', category=DeprecationWarning)
-#Import Loading Spinner Cursor
+from mlxtend.data import loadlocal_mnist
 import spinner
 
 with spinner.Spinner():
-    #mnist = fetch_openml('mnist_784')
+    train_images, train_labels = loadlocal_mnist(
+        images_path='MNIST_data/train-images-idx3-ubyte/train-images.idx3-ubyte',
+        labels_path='MNIST_data/train-labels-idx1-ubyte/train-labels.idx1-ubyte')
+    test_images, test_labels = loadlocal_mnist(
+        images_path='MNIST_data/t10k-images-idx3-ubyte/t10k-images.idx3-ubyte',
+        labels_path='MNIST_data/t10k-labels-idx1-ubyte/t10k-labels.idx1-ubyte')
 
-    mnist = fetch_mldata('MNIST original')
+    new_df = pd.DataFrame(data=np.int_(train_images[0:, 0:]))
+    # train_changing_pixels_df, dropped_pixels = preproc.remove_constant_pixels(new_df)
+    train_images_pd, dropped_pixels = preproc.remove_constant_pixels(new_df)
+    train_images = np.array(train_images_pd)
 
-    X,y = mnist['data'],mnist['target']
+    X,y = train_images,train_labels
 
     print('\b---------------------------------------------------')
     print('------------------Random Forest--------------------')
@@ -46,7 +53,7 @@ with spinner.Spinner():
 
     ##
     # Split the Datasets into training and testing
-    X_train, X_test, y_train, y_test = X[:60000], X[60000:], y[:60000], y[60000:]
+    #X_train, X_test, y_train, y_test = X[:60000], X[60000:], y[:60000], y[60000:]
 
     ##
     # With and Without PCA
@@ -55,18 +62,18 @@ with spinner.Spinner():
     ##
     # Shuffle Datasets of training
     shuffle_index = np.random.permutation(60000)
-    X_train,y_train = X_train[shuffle_index], y_train[shuffle_index]
+    X_train, y_train = train_images[shuffle_index], train_labels[shuffle_index]
     X_train_pca = X_train_pca[shuffle_index]
 
     ##
     # Train without PCA
-    start = time.time()
+    #start = time.time()
     ##
     # Initialize Random Forest Classifier and train it
-    rf_clf = RandomForestClassifier()
-    rf_clf.fit(X_train,y_train)
-    duration = time.time()-start
-    print("\bDuration without PCA: ", duration, 's')
+    # rf_clf = RandomForestClassifier()
+    # rf_clf.fit(X_train,y_train)
+    # duration = time.time()-start
+    # print("\bDuration without PCA: ", duration, 's')
 
     ##
     # Train with PCA

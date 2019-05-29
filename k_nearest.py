@@ -21,7 +21,7 @@ bounds_train = preproc.get_data_to_box(train) * 1. / 28
 ##
 # Determine right number of Dimensions d
 pca = PCA()
-pca.fit(bounds_train)
+pca.fit(train_images)
 cumsum = np.cumsum(pca.explained_variance_ratio_)
 d = np.argmax(cumsum >= 0.95)+1
 
@@ -52,9 +52,9 @@ print("\bConfusion Matrix = \n", confusionMatrix)
 
 ##
 # Determine Precision and Recall and F1
-precision = precision_score(train_labels, y_train_pred,average='micro')
-recall = recall_score(train_labels, y_train_pred, average='micro')
-f1 = f1_score(train_labels, y_train_pred, average='micro')
+precision = precision_score(train_labels, y_train_pred,average='weighted')
+recall = recall_score(train_labels, y_train_pred, average='weighted')
+f1 = f1_score(train_labels, y_train_pred, average='weighted')
 
 print('\bPrecision: ', precision)
 print('Recall: ', recall)

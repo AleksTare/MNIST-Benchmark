@@ -17,10 +17,13 @@ test_images, test_labels = loadlocal_mnist(
         images_path='MNIST_data/t10k-images-idx3-ubyte/t10k-images.idx3-ubyte',
         labels_path='MNIST_data/t10k-labels-idx1-ubyte/t10k-labels.idx1-ubyte')
 
-#new_df = pd.DataFrame(data=np.int_(train_images[1:,1:]))
-#train_changing_pixels_df, dropped_pixels = preproc.remove_constant_pixels(new_df)
-train = preproc.reshape_to_img(train_images)
-bounds_train = preproc.get_data_to_box(train) * 1. / 28
+new_df = pd.DataFrame(data=np.int_(train_images[0:, 0:]))
+# train_changing_pixels_df, dropped_pixels = preproc.remove_constant_pixels(new_df)
+train_images_pd, dropped_pixels = preproc.remove_constant_pixels(new_df)
+train_images = np.array(train_images_pd)
+##
+# train = preproc.reshape_to_img(train_images)
+# bounds_train = preproc.get_data_to_box(train) * 1. / 28
 ##
 # Determine right number of Dimensions d
 pca = PCA()
@@ -32,10 +35,10 @@ pca = PCA(n_components = d)
 train_images_reduced = pca.fit_transform(train_images)
 test_images_reduced = pca.fit_transform(test_images)
 
-clf = LinearSVC(n_jobs=-1)
+clf = LinearSVC()
 start = time.time()
 print("\bTraining model..")
-clf.fit(bounds_train,train_labels)
+clf.fit(train_images_reduced,train_labels)
 duration = time.time()-start
 print("\bTrain duration: ", duration, 's')
 print("\b----------------------Results----------------------")
@@ -62,4 +65,3 @@ f1 = f1_score(train_labels, y_train_pred, average='micro')
 print('\bPrecision: ', precision)
 print('Recall: ', recall)
 print('F1 Score: ', f1)
-

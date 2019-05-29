@@ -28,7 +28,7 @@ def remove_constant_pixels(pixels_df):
             dropped_pixels_w.append(col)
     print("\n Constantly white pixels that have been dropped: {}".format(dropped_pixels_w))
 
-    print(changing_pixels_df.head())
+    #print(changing_pixels_df.head())
     print("Remaining pixels: {}".format(len(changing_pixels_df.columns)))
     print("Pixels removed: {}".format(784 - len(changing_pixels_df.columns)))
 
