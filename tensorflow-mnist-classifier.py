@@ -147,11 +147,11 @@ def run_train(sess, train_data, train_labels):
 def cross_validate(session, split_size=5):
   results = []
   kf = KFold(n_splits=split_size)
-  for train_idx, val_idx in kf.split(train_x_all, train_y_all):
-    train_x = train_x_all[train_idx]
-    train_y = train_y_all[train_idx]
-    val_x = train_x_all[val_idx]
-    val_y = train_y_all[val_idx]
+  for train_idx, val_idx in kf.split(train_data, train_labels):
+    train_x = train_data[train_idx]
+    train_y = train_labels[train_idx]
+    val_x = train_data[val_idx]
+    val_y = train_labels[val_idx]
     run_train(session, train_x, train_y)
     results.append(session.run(tf_acc, feed_dict=fd))
   return results
